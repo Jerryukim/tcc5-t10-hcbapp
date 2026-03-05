@@ -5,8 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -15,43 +14,51 @@ datasource db {
 }
 
 model User {
-  id     String @id @default(uuid())
-  name   String
-  email  String @unique
-  wallet String?
-  role   Role @default(USER)
-  createdAt DateTime @default(now())
-  reviews Review[]
-  payments Payment[]
-  attendance Attendance[]
+  id              String       @id @default(uuid())
+  name            String
+  email           String       @unique
+  wallet          String?
+  role            Role         @default(USER)
+  specialty       String?
+  createdAt       DateTime     @default(now())
+  reviews         Review[]
+  payments        Payment[]
+  doctorBookings  Attendance[] @relation("DoctorBookings")
+  patientBookings Attendance[] @relation("PatientBookings")
 }
 
 model Payment {
-  id       String @id @default(uuid())
-  userId   String
-  amount   Float
+  id        String   @id @default(uuid())
+  userId    String
+  amount    Float
   reference String
   hashProof String?
   createdAt DateTime @default(now())
-  user     User  @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Review {
-  id     String @id @default(uuid())
-  content String
-  rating  Int
+  id        String   @id @default(uuid())
+  content   String
+  rating    Int
   hashProof String?
-  userId   String
+  userId    String
   createdAt DateTime @default(now())
-  user    User  @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Attendance {
-  id          String  @id @default(uuid())
-  userId      String
-  date        DateTime
-  hashProof   String?
-  user      User @relation(fields: [userId], references: [id])
+  id        String   @id @default(uuid())
+  doctorId  String
+  patientId String
+  date      DateTime
+  hashProof String?
+  createdAt DateTime @default(now())
+
+  doctor  User @relation("DoctorBookings", fields: [doctorId], references: [id])
+  patient User @relation("PatientBookings", fields: [patientId], references: [id])
+
+  @@unique([doctorId, date])
 }
 
 enum Role {
