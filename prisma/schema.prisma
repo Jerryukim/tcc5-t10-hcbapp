@@ -65,3 +65,14 @@ enum Role {
   ADMIN
   USER
 }
+
+model MedicalRecord {
+  id           String   @id @default(uuid())
+  patientId    String
+  doctorId     String
+  diagnosis    String
+  prescription String?
+  notes        String?
+  recordHash   String?
+  createdAt    DateTime @default(now())
+}
