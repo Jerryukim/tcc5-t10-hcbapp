@@ -11,8 +11,9 @@ const CONTRACT_ABI = [
 ];
 
 export default function PaymentPage() {
-  const searchParams = useSearchParams();
+
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const doctor = searchParams.get("doctor") || "";
   const specialty = searchParams.get("specialty") || "";
@@ -21,13 +22,15 @@ export default function PaymentPage() {
   const date = searchParams.get("date") || "";
 
   const [status, setStatus] = useState("");
-  const [loading, setLoading] = useState(false);
   const [txHash, setTxHash] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handlePayment() {
+
     try {
+
       setLoading(true);
-      setStatus("Connecting to wallet...");
+      setStatus("Connecting to MetaMask...");
 
       if (!(window as any).ethereum) {
         alert("Please install MetaMask");
@@ -68,23 +71,27 @@ export default function PaymentPage() {
       await tx.wait();
 
       setStatus("Payment successful!");
+
       setLoading(false);
 
     } catch (error: any) {
+
       console.log(error);
-      setStatus(error?.reason || error?.message || "Payment failed");
+
+      alert(error?.reason || error?.message || "Payment failed");
+
       setLoading(false);
+
+      setStatus("");
     }
   }
 
   return (
     <div className="max-w-2xl mx-auto p-8">
 
-      {/* Back Button */}
-
       <button
         onClick={() => router.back()}
-        className="text-blue-600 mb-6"
+        className="text-blue-600 mb-6 hover:underline"
       >
         ← Back
       </button>
@@ -93,14 +100,17 @@ export default function PaymentPage() {
         Appointment Payment
       </h1>
 
-      <div className="border p-6 rounded shadow">
+      <div className="border p-6 rounded shadow bg-white">
 
         <p><strong>Doctor:</strong> {doctor}</p>
+
         <p><strong>Specialty:</strong> {specialty}</p>
+
         <p><strong>Patient:</strong> {patient}</p>
+
         <p><strong>Date:</strong> {date}</p>
 
-        <p className="mt-4">
+        <p className="mt-4 text-sm break-all">
           <strong>Doctor Wallet:</strong> {wallet}
         </p>
 
@@ -117,32 +127,43 @@ export default function PaymentPage() {
         </button>
 
         {status && (
-          <p className="mt-4 text-sm text-gray-600">
+          <p className="mt-4 text-gray-600 text-sm">
             {status}
           </p>
         )}
 
         {txHash && (
-          <p className="mt-4 text-sm break-all">
-            Transaction Hash: {txHash}
-          </p>
+          <div className="mt-4">
+
+            <p className="text-sm break-all">
+              Transaction Hash: {txHash}
+            </p>
+
+            <a
+              href={`https://sepolia.etherscan.io/tx/${txHash}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-blue-600 underline"
+            >
+              View on Etherscan
+            </a>
+
+          </div>
         )}
 
-        {/* Proceed Button */}
-
         {status === "Payment successful!" && (
+
           <div className="mt-6">
+
             <button
-              onClick={() =>
-                router.push(
-                  `/doctor-record?patientWallet=${encodeURIComponent(wallet)}`
-                )
-              }
+              onClick={() => router.push("/")}
               className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
             >
-              Proceed to Medical Record
+              Finish Booking
             </button>
+
           </div>
+
         )}
 
       </div>
