@@ -7,52 +7,52 @@ const doctors = [
   {
     name: "Dr Ability Ifa",
     specialty: "Cardiologist",
-    wallet: "0x8192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4",
+    wallet: "0x9f8F72aA9304c8B593d555F12ef6589Cc3A579A2",
   },
   {
     name: "Dr James Apah",
     specialty: "General Physician",
-    wallet: "0x1111111111111111111111111111111111111111",
+    wallet: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
   },
   {
     name: "Dr Faith Bob",
     specialty: "Neurologist",
-    wallet: "0x708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b",
+    wallet: "0x53d284357ec70cE289D6D64134DfAc8E511c8a3D",
   },
   {
     name: "Dr Maxwell Tay",
     specialty: "Dentist",
-    wallet: "0x6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a",
+    wallet: "0xfe9e8709d3215310075d67E3ed32A380CCf451C8",
   },
   {
     name: "Dr Jeremiah Mason",
     specialty: "Ophthalmologist",
-    wallet: "0x4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708",
+    wallet: "0x66f820a414680B5bcda5eECA5dea238543F42054",
   },
   {
     name: "Dr Joseph Ufia",
     specialty: "Psychiatrist",
-    wallet: "0x92a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d",
+    wallet: "0x281055afc982d96Fab65b3a49c7F9dB21cF6bE8a",
   },
   {
     name: "Dr Faith Osimhen",
     specialty: "Gynecologist",
-    wallet: "0x5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f70819",
+    wallet: "0xdc76cd25977e0a5ae17155770273ad58648900d3",
   },
   {
     name: "Dr Jacob Sunday",
     specialty: "Dermatology",
-    wallet: "0x2222222222222222222222222222222222222222",
+    wallet: "0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0",
   },
   {
     name: "Dr Samuel Moore",
     specialty: "Pediatric",
-    wallet: "0x3333333333333333333333333333333333333333",
+    wallet: "0x583031d1113ad414f02576bd6afaBfb302140225",
   },
   {
     name: "Dr Precious John",
     specialty: "Optician",
-    wallet: "0xa3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e",
+    wallet: "0xdd870fa1b7c4700f2bd7f44238821c26f7392148",
   },
 ];
 
@@ -67,37 +67,38 @@ export default function DoctorsPage() {
   return (
     <>
       <Navbar />
+
       <div className="p-6">
-  <a href="/" className="text-blue-600 hover:underline">
-    ← Back to Home
-  </a>
-</div>
+        <a href="/" className="text-blue-600 hover:underline">
+          ← Back to Home
+        </a>
+      </div>
 
       <main className="p-10 bg-gray-100 min-h-screen">
         <h1 className="text-3xl font-bold mb-6">
           {selectedSpecialty ? `${selectedSpecialty} Doctors` : "Available Doctors"}
         </h1>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredDoctors.map((doctor) => (
             <div
               key={doctor.wallet}
               className="bg-white p-6 rounded-lg shadow"
             >
-              <h2 className="text-xl font-semibold">
-                {doctor.name}
-              </h2>
+              <h2 className="text-xl font-semibold">{doctor.name}</h2>
 
-              <p className="text-gray-600">
-                {doctor.specialty}
-              </p>
+              <p className="text-gray-600 mt-2">{doctor.specialty}</p>
 
-              <p className="text-sm text-gray-400 mt-2 break-all">
+              <p className="text-sm text-gray-400 mt-3 break-all">
                 {doctor.wallet}
               </p>
 
               <a
-                href={`/booking?doctor=${encodeURIComponent(doctor.name)}&specialty=${encodeURIComponent(doctor.specialty)}&wallet=${doctor.wallet}`}
+                href={`/booking?doctor=${encodeURIComponent(
+                  doctor.name
+                )}&specialty=${encodeURIComponent(
+                  doctor.specialty
+                )}&wallet=${doctor.wallet}`}
                 className="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
               >
                 Book Appointment
