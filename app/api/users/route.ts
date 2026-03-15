@@ -1,17 +1,43 @@
 import { prisma } from "@/lib/prisma";
 
-export const runtime = "nodejs";
+export async function GET() {
+  try {
+    const users = await prisma.user.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const specialty = searchParams.get("specialty");
+    return Response.json(users);
+  } catch (error) {
+    console.error(error);
+    return Response.json(
+      { error: "Failed to fetch users" },
+      { status: 500 }
+    );
+  }
+}
 
-  const users = await prisma.user.findMany({
-    where: {
-      role: "ADMIN",
-      ...(specialty ? { specialty } : {}),
-    },
-  });
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
 
-  return Response.json(users);
+    const newUser = await prisma.user.create({
+      data: {
+        name: body.name,
+        email: body.email,
+        wallet: body.wallet,
+        role: body.role || "USER",
+        specialty: body.specialty || null,
+      },
+    });
+
+    return Response.json(newUser);
+  } catch (error) {
+    console.error(error);
+    return Response.json(
+      { error: "Failed to create user" },
+      { status: 500 }
+    );
+  }
 }
