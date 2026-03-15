@@ -52,6 +52,8 @@ model Attendance {
   doctorId  String
   patientId String
   date      DateTime
+  status String @default("PENDING")
+  consultationLink String?
   hashProof String?
   createdAt DateTime @default(now())
 

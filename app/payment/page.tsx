@@ -11,14 +11,15 @@ const CONTRACT_ABI = [
 ];
 
 export default function PaymentPage() {
-
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const doctor = searchParams.get("doctor") || "";
+  const doctorId = searchParams.get("doctorId") || "";
   const specialty = searchParams.get("specialty") || "";
   const wallet = searchParams.get("wallet") || "";
   const patient = searchParams.get("patient") || "";
+  const patientId = searchParams.get("patientId") || "";
   const date = searchParams.get("date") || "";
 
   const [status, setStatus] = useState("");
@@ -26,14 +27,18 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(false);
 
   async function handlePayment() {
-
     try {
-
       setLoading(true);
       setStatus("Connecting to MetaMask...");
 
       if (!(window as any).ethereum) {
         alert("Please install MetaMask");
+        setLoading(false);
+        return;
+      }
+
+      if (!doctorId || !patientId || !date) {
+        alert("Missing booking details. Please go back and try again.");
         setLoading(false);
         return;
       }
@@ -52,6 +57,16 @@ export default function PaymentPage() {
 
       const signer = await provider.getSigner();
 
+      let normalizedWallet = "";
+
+      try {
+        normalizedWallet = ethers.getAddress(wallet.toLowerCase());
+      } catch {
+        alert("Doctor wallet address is invalid.");
+        setLoading(false);
+        return;
+      }
+
       const contract = new ethers.Contract(
         CONTRACT_ADDRESS,
         CONTRACT_ABI,
@@ -60,35 +75,51 @@ export default function PaymentPage() {
 
       setStatus("Waiting for wallet confirmation...");
 
-      const tx = await contract.payForAppointment(wallet, {
+      const tx = await contract.payForAppointment(normalizedWallet, {
         value: ethers.parseEther("0.001"),
       });
 
       setTxHash(tx.hash);
-
       setStatus("Transaction submitted. Waiting for confirmation...");
 
       await tx.wait();
 
-      setStatus("Payment successful!");
+      const bookingRes = await fetch("/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          doctorId,
+          patientId,
+          date,
+        }),
+      });
 
+      if (!bookingRes.ok) {
+        const errorData = await bookingRes.json().catch(() => ({}));
+        throw new Error(errorData?.error || "Payment succeeded but booking save failed");
+      }
+
+      setStatus("Payment successful!");
       setLoading(false);
 
     } catch (error: any) {
-
       console.log(error);
 
-      alert(error?.reason || error?.message || "Payment failed");
+      if (error?.code === 4001) {
+        alert("Transaction rejected in MetaMask.");
+      } else {
+        alert(error?.reason || error?.message || "Payment failed");
+      }
 
       setLoading(false);
-
       setStatus("");
     }
   }
 
   return (
     <div className="max-w-2xl mx-auto p-8">
-
       <button
         onClick={() => router.back()}
         className="text-blue-600 mb-6 hover:underline"
@@ -101,13 +132,10 @@ export default function PaymentPage() {
       </h1>
 
       <div className="border p-6 rounded shadow bg-white">
-
         <p><strong>Doctor:</strong> {doctor}</p>
-
         <p><strong>Specialty:</strong> {specialty}</p>
-
         <p><strong>Patient:</strong> {patient}</p>
-
+        <p><strong>Patient ID:</strong> {patientId}</p>
         <p><strong>Date:</strong> {date}</p>
 
         <p className="mt-4 text-sm break-all">
@@ -121,7 +149,7 @@ export default function PaymentPage() {
         <button
           onClick={handlePayment}
           disabled={loading}
-          className="bg-green-600 text-white px-6 py-2 rounded mt-4 hover:bg-green-700"
+          className="bg-green-600 text-white px-6 py-2 rounded mt-4 hover:bg-green-700 disabled:opacity-60"
         >
           {loading ? "Processing..." : "Pay with Wallet"}
         </button>
@@ -134,7 +162,6 @@ export default function PaymentPage() {
 
         {txHash && (
           <div className="mt-4">
-
             <p className="text-sm break-all">
               Transaction Hash: {txHash}
             </p>
@@ -147,27 +174,20 @@ export default function PaymentPage() {
             >
               View on Etherscan
             </a>
-
           </div>
         )}
 
         {status === "Payment successful!" && (
-
           <div className="mt-6">
-
             <button
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/patient-dashboard")}
               className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
             >
               Finish Booking
             </button>
-
           </div>
-
         )}
-
       </div>
-
     </div>
   );
 }

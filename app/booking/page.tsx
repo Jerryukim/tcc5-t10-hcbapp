@@ -9,25 +9,38 @@ export default function BookingPage() {
   const searchParams = useSearchParams();
 
   const doctor = searchParams.get("doctor") || "No doctor selected";
+  const doctorId = searchParams.get("doctorId") || "";
   const specialty = searchParams.get("specialty") || "No specialty selected";
   const wallet = searchParams.get("wallet") || "No wallet selected";
 
   const [name, setName] = useState("");
+  const [patientId, setPatientId] = useState("");
   const [date, setDate] = useState("");
 
   function handleBooking() {
-    if (!name || !date) {
-      alert("Please fill in patient name and appointment date.");
+    if (!name || !patientId || !date) {
+      alert("Please fill in patient name, patient ID, and appointment date.");
+      return;
+    }
+
+    if (!doctorId) {
+      alert("Doctor ID is missing. Please go back and select the doctor again.");
       return;
     }
 
     const url = `/payment?doctor=${encodeURIComponent(
       doctor
+    )}&doctorId=${encodeURIComponent(
+      doctorId
     )}&specialty=${encodeURIComponent(
       specialty
     )}&wallet=${encodeURIComponent(
       wallet
-    )}&patient=${encodeURIComponent(name)}&date=${encodeURIComponent(date)}`;
+    )}&patient=${encodeURIComponent(
+      name
+    )}&patientId=${encodeURIComponent(
+      patientId
+    )}&date=${encodeURIComponent(date)}`;
 
     router.push(url);
   }
@@ -62,18 +75,26 @@ export default function BookingPage() {
           </div>
 
           <label className="block mb-2 font-semibold">Patient Name</label>
-
           <input
             type="text"
             className="w-full border p-2 mb-4"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            placeholder="Enter patient name"
+          />
+
+          <label className="block mb-2 font-semibold">Patient ID</label>
+          <input
+            type="text"
+            className="w-full border p-2 mb-4"
+            value={patientId}
+            onChange={(e) => setPatientId(e.target.value)}
+            placeholder="e.g. patient-001"
           />
 
           <label className="block mb-2 font-semibold">
             Appointment Date
           </label>
-
           <input
             type="date"
             className="w-full border p-2 mb-4"
